@@ -1,53 +1,60 @@
 package algo;
 
 import models.Rating;
-import models.User;
 
-import java.io.Serializable;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
  * User: Alina
- * Date: 12.04.14
- * Time: 13:43
+ * Date: 13.05.14
+ * Time: 19:02
  * To change this template use File | Settings | File Templates.
  */
-public class RatingCountMatrix implements Serializable {
-    private int[][] matrix = null;
-    public RatingCountMatrix(List<Rating> ratingsByUserA, List<Rating> ratingsByUserB, int nRatingValues){
-        Init(nRatingValues);
-        Calculate(ratingsByUserA, ratingsByUserB);
+public class RatingCountMatrix {
+    public int[][] matrix;
+    public int totalCount;
+    public int similarityCount;
+
+    public RatingCountMatrix(int size) {
+        this.matrix = new int[size][size];
+        this.totalCount = 0;
+        this.similarityCount = 0;
     }
 
-    private void Calculate(List<Rating> ratingsByUserA, List<Rating> ratingsByUserB) {
-        for(int rA = 0; rA<ratingsByUserA.size(); rA++){
-            for (int rB = 0; rB<ratingsByUserB.size(); rB++){
-                if(ratingsByUserA.get(rA).getMovieId() == ratingsByUserB.get(rB).getMovieId()) //if user B rated the movie rated by A
-                    matrix[rA][rB]++;
+    public void initMatrix(List<Rating> ratingsByUserA, List<Rating> ratingsByUserB) {
+        for (int i = 0; i < ratingsByUserA.size(); i++) {
+            Rating ratingByA = ratingsByUserA.get(i);
+            for (int j = 0; j < ratingsByUserB.size(); j++) {
+                Rating ratingByB = ratingsByUserB.get(j);
+                if (ratingByA.getMovieId() == ratingByB.getMovieId()) {
+                    this.matrix[ratingByA.getRating() - 1][ratingByB.getRating() - 1]++;
+                }
             }
         }
+        logMatrix();
     }
 
-    private void Init(int nSize) {
-        matrix = new int[nSize][nSize];
-    }
-
-    public int GetTotalCount(){
-        int totalCount = 0;
-        int n = matrix.length;
-        for (int i=0;i<n;i++){
-            for (int j=0; j<n;j++){
-                totalCount+=matrix[i][j];
+    public void calcTotalCount() {
+        for (int i = 0; i < this.matrix.length; i++) {
+            for (int j = 0; j < this.matrix.length; j++) {
+                this.totalCount += this.matrix[i][j];
             }
         }
-        return totalCount;
+        System.out.println("Total count: " + this.totalCount);
     }
 
-    public int GetAgreementCount(){
-        int agreementCount = 0;
-        for (int i = 0; i < matrix.length; i++)
-            agreementCount+=matrix[i][i];
-        return agreementCount;
+    public void calcSimilarityCount() {
+        for (int j = 0; j < this.matrix.length; j++) {
+            this.similarityCount += this.matrix[j][j];
+        }
+        System.out.println("Sim count: " + this.similarityCount);
+    }
+
+    private void logMatrix() {
+        for (int i = 0; i < matrix.length; i++) {
+            System.out.println(Arrays.toString(matrix[i]));
+        }
     }
 }
